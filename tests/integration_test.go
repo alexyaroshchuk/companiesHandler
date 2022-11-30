@@ -1,18 +1,19 @@
 package tests
 
 import (
-	"companiesHandler/mappers"
 	"context"
 	"fmt"
-	"google.golang.org/grpc"
 	"log"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	"google.golang.org/grpc"
 
+	"companiesHandler/mappers"
 	proto "companiesHandler/proto/pb"
 )
 
+//nolint
 type config struct {
 	GRPCAddr   string `env:"GRPC_ADDR,default=localhost:8080"`
 	DBHost     string `env:"DB_DRIVER,default=localhost"`
@@ -23,6 +24,7 @@ type config struct {
 	DBPort     string `env:"DB_PORT,default=5432"`
 }
 
+//nolint
 type dbCompanies struct {
 	ID                string
 	Name              string
@@ -32,7 +34,7 @@ type dbCompanies struct {
 	Registered        string
 }
 
-// FunctionalTestSuite structure to group tests into suite and manage dependencies for functional tests.
+//nolint
 type FunctionalTestSuite struct {
 	suite.Suite
 	config config
@@ -40,12 +42,12 @@ type FunctionalTestSuite struct {
 	dbManager *dbCompanies
 }
 
-// Starting functional tests.
+//nolint
 func TestFunctionalCases(t *testing.T) {
 	suite.Run(t, &FunctionalTestSuite{})
 }
 
-// Populate necessary configuration and create dependencies to run suite.
+//nolint
 func (s *FunctionalTestSuite) SetupSuite() {
 	conn, err := grpc.Dial("localhost:50056", grpc.WithInsecure())
 	if err != nil {
