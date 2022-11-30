@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package companies;
+
+option go_package = "./proto/pb";
+
+service CompanyService {
+  rpc Create(CreateCompanyRequest) returns (CompanyResponse);
+  rpc Patch(UpdateCompanyRequest) returns (CompanyResponse);
+  rpc Get(CompanyRequest) returns (CompanyResponse);
+  rpc Delete(CompanyRequest) returns (DeleteCompanyResponse);
+}
+
+message Company {
+  string UUID = 1;
+  string Name = 2;
+  optional string Description = 3;
+  int64 AmountOfEmployees = 4;
+  bool Registered = 5;
+  Types Type = 6;
+}
+
+
+
+enum Types {
+  Corporations = 0;
+  NonProfit = 1;
+  Cooperative = 2;
+  Proprietorship = 3;
+}
+
+message CreateCompanyRequest {
+  string Name = 1;
+  optional string Description = 2;
+  int64 AmountOfEmployee = 3;
+  bool Registered = 4;
+  Types Type = 5;
+}
+
+message UpdateCompanyRequest {
+  string UUID = 1;
+  optional string Name = 2;
+  optional string Description = 3;
+  optional int64 AmountOfEmployee = 4;
+  optional bool Registered = 5;
+  optional Types Type = 6;
+}
+
+message CompanyRequest { string Id = 1; }
+
+message CompanyResponse { Company company = 1; }
+
+message DeleteCompanyResponse { bool success = 1; }

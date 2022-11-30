@@ -1,0 +1,77 @@
+version: '3.9'
+services:
+  app:
+    container_name: companies_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8765:8765"
+    restart: on-failure
+    command: go run main.go
+    depends_on:
+      - companies-postgres
+      - kafka
+    networks:
+      - companies
+
+  companies-postgres:
+    image: postgres:latest
+    container_name: finhub_db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - DATABASE_HOST=${DB_HOST}
+    ports:
+      - '5432:5432'
+    volumes:
+      - database_postgres:/var/lib/postgresql/data
+    networks:
+      - companies
+
+  migrate:
+    image: migrate/migrate
+    networks:
+      - companies
+    volumes:
+      - ./db/migration:/db/migration
+    command: [ "-path", "/db/migration", "-database",  "postgresql://test:password@companies-postgres:5432/companies?sslmode=disable", "up"]
+    depends_on:
+      - companies-postgres
+    links:
+      - companies-postgres
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+    networks:
+      - companies
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - companies
+
+volumes:
+  api:
+  database_postgres:
+
+networks:
+  companies:
+    driver: bridge
