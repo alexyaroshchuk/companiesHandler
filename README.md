@@ -20,7 +20,7 @@ JWT token will be valid for 2 hours.
 
 ## Some useful commands
 
-1. ```make run``` - to start project, setup all services and migrations; (in progress)
+1. ```make run``` - to start project, setup all services and migrations
 2. ```make lint``` 
 3. ```make build-proto``` - generate proto files
 4. ```make test``` - in progress
